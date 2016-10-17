@@ -42,7 +42,7 @@
             "php -r \"file_exists('.env') || copy('.env.example', '.env');\"",
             "php artisan key:generate",
             "php artisan migrate",
-            "php artisan passport:client --password"
+            "php artisan passport:client --password --name=\"Laravel Password Grant Client\""
         ],
         "post-update-cmd": [
             "Illuminate\\Foundation\\ComposerScripts::postUpdate",
