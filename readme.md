@@ -8,4 +8,5 @@ $ composer install
 
 ####2. Set Database Table
 
-- Make Sure Table [oauth_refresh_tokens] Column [access_token_id] has been set foreign key to Table [oauth_access_tokens] Column [id] ON UPDATE CASCADE ON DELETE CASCADE
+- Make Sure Table [oauth_refresh_tokens] Column [access_token_id] has been set foreign key to Table [oauth_access_tokens] Column [id] ON UPDATE CASCADE ON DELETE CASCADE.
+- Make Sure if you are using POSTMAN/ADVANCED REST CLIENT to encode the data before sending to server.
