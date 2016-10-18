@@ -31,6 +31,6 @@ class Member extends Model implements
 
     public function findForPassport($username)
     {
-        return self::where('name', $username)->first();
+        return self::where('username', $username)->first();
     }
 }
