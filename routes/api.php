@@ -17,7 +17,6 @@ use App\User;
 Route::get('/user', function (Request $request) {
     return $request->user();
 })->middleware('auth:api');
-Route::get('/tokens', function(){
-	dd(User::find(1)->tokens);
-});
-Route::post('/oauth/token', 'Api\Auth\LoginController@issueToken');
+
+Route::post('/register', 'Api\Auth\RegisterController@register');
+Route::post('/login', 'Api\Auth\LoginController@issueToken');

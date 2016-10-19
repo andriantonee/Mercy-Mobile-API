@@ -11,9 +11,9 @@ use Illuminate\Notifications\Notifiable;
 use Laravel\Passport\HasApiTokens;
 
 class Member extends Model implements
-	AuthenticatableContract
+    AuthenticatableContract
 {
-	use Authenticatable, HasApiTokens, Notifiable;
+    use Authenticatable, HasApiTokens, Notifiable;
 
     protected $table = 'members';
 
