@@ -33,4 +33,14 @@ class Member extends Model implements
     {
         return self::where('username', $username)->first();
     }
+
+    public function teams_as_leader()
+    {
+        return $this->hasMany('App\Models\Team', 'members_username', 'username');
+    }
+
+    public function teams()
+    {
+        return $this->belongsToMany('App\Models\Team', 'teams_details', 'members_username', 'teams_id');
+    }
 }

@@ -16,8 +16,7 @@ class CreateTeamsDetailsTables extends Migration
         Schema::create('teams_details', function (Blueprint $table) {
             $table->integer('teams_id')->unsigned();
             $table->string('members_username', 20);
-            $table->bigInteger('created_at')->unsigned();
-            $table->bigInteger('updated_at')->unsigned();
+            $table->bigInteger('joined_at')->unsigned();
 
             $table->primary(['teams_id', 'members_username']);
             $table->foreign('teams_id')->references('id')->on('teams')->onDelete('restrict')->onUpdate('restrict');

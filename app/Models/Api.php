@@ -11,7 +11,7 @@ class Api
      */
     public static function create_members(array $data)
     {
-        Member::create([
+        $member = new Member([
             'username'   => $data['username'],
             'password'   => Hash::make($data['password']),
             'first_name' => $data['first_name'],
@@ -20,5 +20,20 @@ class Api
             'address'    => $data['address'],
             'phone'      => $data['phone']
         ]);
+
+        $member->save();
+    }
+
+    public static function create_teams(array $data, $authenticate_user)
+    {
+        $team = new Team([
+            'games_id' => $data['games_id'],
+            'members_username' => $authenticate_user->username,
+            'name' => $data['team_name']
+        ]);
+
+        $team->save();
+
+        $team->members()->attach($authenticate_user, ['joined_at' => time()]);
     }
 }

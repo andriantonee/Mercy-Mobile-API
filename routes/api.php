@@ -1,7 +1,6 @@
 <?php
 
 use Illuminate\Http\Request;
-use App\User;
 
 /*
 |--------------------------------------------------------------------------
@@ -14,9 +13,11 @@ use App\User;
 |
 */
 
-Route::get('/user', function (Request $request) {
-    return $request->user();
-})->middleware('auth:api');
+Route::group([
+    'middleware' => 'auth:api'
+], function () {
+    Route::post('/team/create', 'Api\TeamController@create_team');
+});
 
 Route::post('/register', 'Api\Auth\RegisterController@register');
 Route::post('/login', 'Api\Auth\LoginController@issueToken');
