@@ -15,7 +15,7 @@ class Api
             'username'   => $data['username'],
             'password'   => Hash::make($data['password']),
             'first_name' => $data['first_name'],
-            'last_name'  => $data['last_name'],
+            'last_name'  => isset($data['last_name']) ? $data['last_name'] : '',
             'email'      => $data['email'],
             'address'    => $data['address'],
             'phone'      => $data['phone']
@@ -24,7 +24,7 @@ class Api
         $member->save();
     }
 
-    public static function create_teams(array $data, $authenticate_user)
+    public static function create_teams(array $data, Member $authenticate_user)
     {
         $team = new Team([
             'games_id' => $data['games_id'],
@@ -35,5 +35,14 @@ class Api
         $team->save();
 
         $team->members()->attach($authenticate_user, ['joined_at' => time()]);
+    }
+
+    public static function add_teams_detail(int $group_id, array $data)
+    {
+        $team = Team::find($group_id);
+        foreach ($data as $member)
+        {
+            $team->members()->attach($member, ['joined_at' => time()]);
+        }
     }
 }

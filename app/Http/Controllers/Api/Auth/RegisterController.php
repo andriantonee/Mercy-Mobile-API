@@ -16,9 +16,9 @@ class RegisterController extends Controller
         }
         catch(\Exception $e)
         {
-            return response()->json('Something went wrong, Please Try Again!', 500);
+            return response()->json('Terjadi kesalahan pada server, silahkan coba kembali.', 500);
         }
 
-        return response()->json('Registered successfully!', 200);
+        return response()->json('Registrasi berhasil!', 200);
     }
 }

@@ -21,7 +21,7 @@ class LoginController extends AccessTokenController
      */
     public function issueToken(ServerRequestInterface $request)
     {
-        if ($request->getParsedBody()['grant_type'])
+        if (isset($request->getParsedBody()['grant_type']))
         {
             if ($request->getParsedBody()['grant_type'] != 'password' && $request->getParsedBody()['grant_type'] != 'refresh_token')
             {
@@ -29,7 +29,7 @@ class LoginController extends AccessTokenController
             }
         }
 
-        if ($request->getParsedBody()['client_id'])
+        if (isset($request->getParsedBody()['client_id']))
         {
             if (!DB::table('oauth_clients')->where('id', $request->getParsedBody()['client_id'])->exists())
             {

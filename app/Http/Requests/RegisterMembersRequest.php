@@ -25,7 +25,7 @@ class RegisterMembersRequest extends FormRequest
     {
         return [
             'username'   => 'required|alpha_dash|min:2|max:20|unique:members,username,NULL,username',
-            'password'   => 'required|min:6|confirmed',
+            'password'   => 'required|alpha_num|min:6|confirmed',
             'first_name' => 'required|string|max:100',
             'last_name'  => 'string|max:100',
             'email'      => 'required|email|max:255|unique:members,email,NULL,username',
