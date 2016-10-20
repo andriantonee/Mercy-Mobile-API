@@ -34,13 +34,23 @@ class Member extends Model implements
         return self::where('username', $username)->first();
     }
 
-    public function teams_as_leader()
+    public function games()
     {
-        return $this->hasMany('App\Models\Team', 'members_username', 'username');
+        return $this->belongsToMany('App\Models\Game', 'members_games', 'username', 'games_id');
     }
 
     public function teams()
     {
-        return $this->belongsToMany('App\Models\Team', 'teams_details', 'members_username', 'teams_id');
+        return $this->belongsToMany('App\Models\Team', 'teams_details', 'username', 'teams_id')->withPivot('joined_at');
+    }
+
+    public function teams_pendings()
+    {
+        return $this->belongsToMany('App\Models\Team', 'teams_details_pendings', 'username', 'teams_id')->withPivot('invited_at', 'requested_at');
+    }
+
+    public function teams_as_leader()
+    {
+        return $this->hasMany('App\Models\Team', 'username', 'username');
     }
 }

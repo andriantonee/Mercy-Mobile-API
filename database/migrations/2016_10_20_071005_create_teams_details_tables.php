@@ -15,12 +15,12 @@ class CreateTeamsDetailsTables extends Migration
     {
         Schema::create('teams_details', function (Blueprint $table) {
             $table->integer('teams_id')->unsigned();
-            $table->string('members_username', 20);
+            $table->string('username', 20);
             $table->bigInteger('joined_at')->unsigned();
 
-            $table->primary(['teams_id', 'members_username']);
+            $table->primary(['teams_id', 'username']);
             $table->foreign('teams_id')->references('id')->on('teams')->onDelete('restrict')->onUpdate('restrict');
-            $table->foreign('members_username')->references('username')->on('members')->onDelete('restrict')->onUpdate('restrict');
+            $table->foreign('username')->references('username')->on('members')->onDelete('restrict')->onUpdate('restrict');
         });
     }
 

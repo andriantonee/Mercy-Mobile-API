@@ -16,7 +16,11 @@ use Illuminate\Http\Request;
 Route::group([
     'middleware' => 'auth:api'
 ], function () {
+	Route::get('/user', function(Request $request) {
+		return $request->user();
+	});
     Route::post('/team/create', 'Api\TeamController@create_team');
+    Route::post('/team/{teams_id}/invite', 'Api\TeamController@invite_members_to_team');
 });
 
 Route::post('/register', 'Api\Auth\RegisterController@register');

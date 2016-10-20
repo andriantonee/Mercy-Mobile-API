@@ -24,25 +24,44 @@ class Api
         $member->save();
     }
 
-    public static function create_teams(array $data, Member $authenticate_user)
+    public static function create_members_games($games_id, Member $user)
+    {
+        $user->games()->attach($games_id);
+    }
+
+    public static function create_teams_names($team_name)
+    {
+        $teams_names = new TeamName([
+            'name' => $team_name
+        ]);
+
+        $teams_names->save();
+    }
+
+    public static function create_teams_names_games($games_id, $team_name)
+    {
+        TeamName::find($team_name)->games()->attach($games_id, ['created_at' => time(), 'updated_at' => time()]);
+    }
+
+    public static function create_teams(array $data, Member $user)
     {
         $team = new Team([
             'games_id' => $data['games_id'],
-            'members_username' => $authenticate_user->username,
+            'username' => $user->username,
             'name' => $data['team_name']
         ]);
 
         $team->save();
 
-        $team->members()->attach($authenticate_user, ['joined_at' => time()]);
+        $team->members()->attach($user->username, ['joined_at' => time()]);
     }
 
-    public static function add_teams_detail(int $group_id, array $data)
+    public static function create_teams_details_pendings($teams_id, array $members)
     {
-        $team = Team::find($group_id);
-        foreach ($data as $member)
+        $team = Team::find($teams_id);
+        foreach($members as $member)
         {
-            $team->members()->attach($member, ['joined_at' => time()]);
+            $team->members_pendings()->attach($member, ['invited_at' => time()]);
         }
     }
 }
