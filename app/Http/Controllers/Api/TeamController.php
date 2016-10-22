@@ -76,6 +76,10 @@ class TeamController extends Controller
         {
             return response()->json('Member tidak ditemukan!', 422);
         }
+        if ($member->games()->find($team->games_id))
+        {
+            return response()->json('Member tersebut sudah memiliki team untuk kategori game team anda!', 422);
+        }
 
         DB::beginTransaction();
         try
@@ -150,7 +154,7 @@ class TeamController extends Controller
             return response()->json('Tidak dapat mengeluarkan diri anda sendiri dari team ini!', 422);
         }
 
-        DB::beginTransaction()
+        DB::beginTransaction();
         try
         {
             Api::delete_teams_details($teams_id, $username);
