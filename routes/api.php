@@ -19,8 +19,12 @@ Route::group([
 	Route::get('/user', function(Request $request) {
 		return $request->user();
 	});
+    Route::post('/profile/update', 'Api\MemberController@update_profile');
+    Route::post('/profile/password/change', 'Api\MemberController@change_password');
     Route::post('/team/create', 'Api\TeamController@create_team');
-    Route::post('/team/{teams_id}/invite', 'Api\TeamController@invite_members_to_team');
+    Route::post('/team/{teams_id}/invite/user#{username}', 'Api\TeamController@invite_member_to_team');
+    Route::post('/team/{teams_id}/kick/user#{username}', 'Api\TeamController@kick_team_member');
+    Route::post('/team/{teams_id}/accept', 'Api\TeamController@accept_team_invitation');
 });
 
 Route::post('/register', 'Api\Auth\RegisterController@register');

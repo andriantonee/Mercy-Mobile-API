@@ -20,7 +20,6 @@ class Api
             'address'    => $data['address'],
             'phone'      => $data['phone']
         ]);
-
         $member->save();
     }
 
@@ -34,7 +33,6 @@ class Api
         $teams_names = new TeamName([
             'name' => $team_name
         ]);
-
         $teams_names->save();
     }
 
@@ -45,23 +43,74 @@ class Api
 
     public static function create_teams(array $data, Member $user)
     {
+        Api::delete_teams_details_pendings($games_id, $user);
         $team = new Team([
             'games_id' => $data['games_id'],
             'username' => $user->username,
             'name' => $data['team_name']
         ]);
-
         $team->save();
-
         $team->members()->attach($user->username, ['joined_at' => time()]);
     }
 
-    public static function create_teams_details_pendings($teams_id, array $members)
+    public static function create_teams_details_pendings($teams_id, $username)
     {
         $team = Team::find($teams_id);
-        foreach($members as $member)
+        $team->members_pendings()->attach($username, ['invited_at' => time()]);
+    }
+
+    public static function create_teams_details($teams_id, Member $member)
+    {
+        $team = Team::find($teams_id);
+        Api::delete_teams_details_pendings($team->games_id, $member);
+        $team->members()->attach($member, ['joined_at' => time()]);
+    }
+
+    /*
+     * All Update function here...
+     */
+    public static function update_members(array $data, Member $member)
+    {
+        if (isset($data['password']))
         {
-            $team->members_pendings()->attach($member, ['invited_at' => time()]);
+            $member->password = Hash::make($data['password']);
         }
+        if (isset($data['first_name']))
+        {
+            $member->first_name = $data['first_name'];
+        }
+        if (isset($data['last_name']))
+        {
+            $member->last_name = $data['last_name'];
+        }
+        if (isset($data['address']))
+        {
+            $member->address = $data['address'];
+        }
+        if (isset($data['phone']))
+        {
+            $member->phone = $data['phone'];
+        }
+        $member->save();
+    }
+
+    /*
+     * All Delete function here...
+     */
+    public static function delete_members_games($teams_id, Member $member)
+    {
+        $member->games()->detach($member->teams()->find($teams_id)->pluck('games_id'));
+    }
+
+    public static function delete_teams_details($teams_id, $username)
+    {
+        $member = Member::find($username);
+        Api::delete_members_games($teams_id, $member);
+        $member->teams()->detach($teams_id);
+    }
+
+    public static function delete_teams_details_pendings($games_id, Member $member)
+    {
+        $member->teams_pendings()->detach(Team::where('games_id', $games_id)->pluck('games_id'));
     }
 }
