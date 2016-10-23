@@ -105,8 +105,11 @@ class Api
     public static function delete_teams_details($teams_id, $username)
     {
         $member = Member::find($username);
+        if ($member->teams()->detach($teams_id) == 0)
+        {
+            throw new \Exception('Pesan Member Tidak Bergabung');
+        }
         Api::delete_members_games($teams_id, $member);
-        $member->teams()->detach($teams_id);
     }
 
     public static function delete_teams_details_pendings($games_id, Member $member)

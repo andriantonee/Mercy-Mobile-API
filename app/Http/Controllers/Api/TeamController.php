@@ -162,9 +162,56 @@ class TeamController extends Controller
         catch (\Exception $e)
         {
             DB::rollBack();
-            return response()->json('Terjadi kesalahan pada server, silahkan coba kembali.', 500);
+            if ($e->getMessage() == 'Pesan Member Tidak Bergabung')
+            {
+                return response()->json('Member tersebut tidak bergabung dalam team ini!', 422);
+            }
+            else
+            {
+                return response()->json('Terjadi kesalahan pada server, silahkan coba kembali.', 500);
+            }
         }
+        DB::commit();
 
         return response()->json('Anda telah berhasil mengeluarkan user tersebut dalam team!', 200);
+    }
+
+    public function member_leave_team($teams_id, Request $request)
+    {
+        $team = Team::find($teams_id);
+
+        if (!$team)
+        {
+            return response()->json('Team tidak ditemukan!', 422);
+        }
+        if (!$team->members()->find($request->user()->username))
+        {
+            return response()->json('Anda tidak pernah bergabung dalam team ini!', 422);
+        }
+        if ($team->username == $request->user()->username)
+        {
+            return response()->json('Anda adalah ketua dalam team tersebut!', 422);
+        }
+
+        DB::beginTransaction();
+        try
+        {
+            Api::delete_teams_details($teams_id, $username);
+        }
+        catch (\Exception $e)
+        {
+            DB::rollBack();
+            if ($e->getMessage() == 'Pesan Member Tidak Bergabung')
+            {
+                return response()->json('Anda tidak pernah bergabung dalam team ini!', 422);
+            }
+            else
+            {
+                return response()->json('Terjadi kesalahan pada server, silahkan coba kembali.', 500);
+            }
+        }
+        DB::commit();
+
+        return response()->json('Anda telah berhasil keluar dari team!', 200);
     }
 }
