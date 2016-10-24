@@ -24,7 +24,7 @@ class TeamController extends Controller
         }
         catch(\Exception $e)
         {
-            // Just Continue
+            // Just Continue ...
         }
         DB::beginTransaction();
         try
@@ -131,6 +131,58 @@ class TeamController extends Controller
         DB::commit();
 
         return response()->json('Anda telah resmi menjadi anggota team tersebut!', 200);
+    }
+
+    public function reject_team_invitation($teams_id, Request $request)
+    {
+        $team = Team::find($teams_id);
+
+        if (!$team)
+        {
+            return response()->json('Team tidak ditemukan!', 422);
+        }
+        if (!$team->members_pendings()->where('teams_details_pendings.username', $request->user()->username)->whereNotNull('invited_at')->exists())
+        {
+            return response()->json('Team tersebut tidak menginvite anda ke dalam teamnya!', 422);
+        }
+
+        DB::beginTransaction();
+        try
+        {
+            Api::delete_teams_details_pendings_on_teams($teams_id, $request->user())
+        }
+        catch(\Exception $e)
+        {
+            DB::rollBack();
+            return response()->json('Terjadi kesalahan pada server, silahkan coba kembali.', 500);
+        }
+        DB::commit();
+
+        return response()->json('Anda telah menolak ajakan team tersebut!', 200);
+    }
+
+    public function member_join_to_team($teams_id, Request $request)
+    {
+        $team = Team::find($teams_id);
+
+        if (!$team)
+        {
+            return response()->json('Team tidak ditemukan!', 422);
+        }
+        if ($request->user()->games()->find($team->games_id))
+        {
+            return response()->json('Anda sudah memiliki team untuk kategori game team tersebut!', 422);
+        }
+        if ($team->members_pendings()->where('teams_details_pendings.username', $request->user()->username)->whereNotNull('invited_at')->exists())
+        {
+            return response()->json('Team tersebut telah menginvite anda ke dalam teamnya, anda cukup mengkonfirmasi ajakan team tersebut!', 422);
+        }
+        if ($team->members_pendings()->where('teams_details_pendings.username', $request->user()->username)->whereNotNull('requested_at')->exists())
+        {
+            return response()->json('Anda sudah pernah melakukan request join sebelumnya!', 422);
+        }
+
+        return response()->json('Permintaan bergabung dengan team tersebut telah dikirim!', 200);
     }
 
     public function kick_team_member($teams_id, $username, Request $request)

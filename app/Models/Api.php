@@ -43,7 +43,7 @@ class Api
 
     public static function create_teams(array $data, Member $user)
     {
-        Api::delete_teams_details_pendings($games_id, $user);
+        Api::delete_teams_details_pendings_on_games($games_id, $user);
         $team = new Team([
             'games_id' => $data['games_id'],
             'username' => $user->username,
@@ -62,7 +62,7 @@ class Api
     public static function create_teams_details($teams_id, Member $member)
     {
         $team = Team::find($teams_id);
-        Api::delete_teams_details_pendings($team->games_id, $member);
+        Api::delete_teams_details_pendings_on_games($team->games_id, $member);
         $team->members()->attach($member, ['joined_at' => time()]);
     }
 
@@ -112,8 +112,13 @@ class Api
         Api::delete_members_games($teams_id, $member);
     }
 
-    public static function delete_teams_details_pendings($games_id, Member $member)
+    public static function delete_teams_details_pendings_on_games($games_id, Member $member)
     {
         $member->teams_pendings()->detach(Team::where('games_id', $games_id)->pluck('games_id'));
+    }
+
+    public static function delete_teams_details_pendings_on_teams($teams_id, Member $member)
+    {
+        $member->teams_pendings()->detach($teams_id);
     }
 }
