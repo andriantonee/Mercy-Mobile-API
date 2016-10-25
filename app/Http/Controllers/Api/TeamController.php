@@ -84,7 +84,7 @@ class TeamController extends Controller
         DB::beginTransaction();
         try
         {
-            Api::create_teams_details_pendings($teams_id, $username);
+            Api::create_teams_details_pendings_invite($teams_id, $username);
         }
         catch(\Exception $e)
         {
@@ -182,7 +182,106 @@ class TeamController extends Controller
             return response()->json('Anda sudah pernah melakukan request join sebelumnya!', 422);
         }
 
+        DB::beginTransaction();
+        try
+        {
+            Api::create_teams_details_pendings_join($teams_id, $username);
+        }
+        catch(\Exception $e)
+        {
+            DB::rollBack();
+            return response()->json('Anda sudah pernah melakukan request join sebelumnya!', 422);
+        }
+        DB::commit();
+
         return response()->json('Permintaan bergabung dengan team tersebut telah dikirim!', 200);
+    }
+
+    public function accept_member_to_join($teams_id, $username, Request $request)
+    {
+        $team = Team::find($teams_id);
+        $member = Member::find($username);
+
+        if (!$team)
+        {
+            return response()->json('Team tidak ditemukan!', 422);
+        }
+        if ($team->username != $request->user()->username)
+        {
+            return response()->json('Anda bukan ketua dalam team tersebut!', 422);
+        }
+        if (!$member)
+        {
+            return response()->json('Member tidak ditemukan!', 422);
+        }
+        if (!$team->members_pendings()->where('teams_details_pendings.username', $request->user()->username)->whereNotNull('requested_at')->exists())
+        {
+            return response()->json('Member tersebut belum mengirimkan request join!', 422);
+        }
+        if ($member->games()->find($team->games_id))
+        {
+            return response()->json('Member tersebut sudah memiliki team untuk kategori game team anda!', 422);
+        }
+
+        DB::beginTransaction();
+        try
+        {
+            Api::create_members_games($team->games_id, $member);
+        }
+        catch(\Exception $e)
+        {
+            DB::rollBack();
+            return response()->json('Member tersebut sudah memiliki team untuk kategori game team anda!', 422);
+        }
+        try
+        {
+            Api::create_teams_details($teams_id, $member);
+        }
+        catch(\Exception $e)
+        {
+            DB::rollBack();
+            return response()->json('Member tersebut sudah bergabung dengan team anda!', 500);
+        }
+        DB::commit();
+
+        return response()->json('Member tersebut telah resmi menjadi anggota team anda!', 200);
+    }
+
+    public function reject_member_to_join($teams_id, $username, Request $request)
+    {
+        $team = Team::find($teams_id);
+        $member = Member::find($username);
+
+        if (!$team)
+        {
+            return response()->json('Team tidak ditemukan!', 422);
+        }
+        if ($team->username != $request->user()->username)
+        {
+            return response()->json('Anda bukan ketua dalam team tersebut!', 422);
+        }
+        if (!$member)
+        {
+            return response()->json('Member tidak ditemukan!', 422);
+        }
+        if (!$team->members_pendings()->where('teams_details_pendings.username', $request->user()->username)->whereNotNull('requested_at')->exists())
+        {
+            return response()->json('Member tersebut belum mengirimkan request join!', 422);
+        }
+
+        DB::beginTransaction();
+        try
+        {
+            Api::delete_teams_details_pendings_on_teams($teams_id, $member);
+        }
+        catch(\Exception $e)
+        {
+            DB::rollBack();
+            return response()->json('Terjadi kesalahan pada server, silahkan coba kembali.', 500);
+        }
+        DB::commit();
+
+        return response()->json('Anda telah berhasil menolak request join member tersebut', 200);
     }
 
     public function kick_team_member($teams_id, $username, Request $request)

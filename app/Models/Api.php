@@ -53,10 +53,16 @@ class Api
         $team->members()->attach($user->username, ['joined_at' => time()]);
     }
 
-    public static function create_teams_details_pendings($teams_id, $username)
+    public static function create_teams_details_pendings_invite($teams_id, $username)
     {
         $team = Team::find($teams_id);
         $team->members_pendings()->attach($username, ['invited_at' => time()]);
+    }
+
+    public static function create_teams_details_pendings_join($teams_id, $username)
+    {
+        $team = Team::find($teams_id);
+        $team->members_pendings()->attach($username, ['requested_at' => time()]);
     }
 
     public static function create_teams_details($teams_id, Member $member)
