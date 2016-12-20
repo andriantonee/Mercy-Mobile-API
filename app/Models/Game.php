@@ -3,35 +3,27 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Game extends Model
 {
+    use SoftDeletes;
+
     protected $table = 'games';
 
     protected $primaryKey = 'id';
     protected $keyType = 'int';
 
-    protected $dates = [];
-    protected $dateFormat = 'U';
-    protected $fillable = ['name'];
+    protected $dates = ['created_at', 'deleted_at'];
+    protected $fillable = ['name', 'created_at'];
     protected $hidden = [];
 
     public $incrementing = true;
-    
-    public $timestamps = true;
 
-    public function members()
-    {
-        return $this->belongsToMany('App\Models\Member', 'members_games', 'games_id', 'username');
-    }
+    public $timestamps = false;
 
-    public function teams()
+    public function tournaments()
     {
-        return $this->hasMany('App\Models\Team', 'games_id', 'id');
-    }
-
-    public function team_names()
-    {
-        return $this->belongsToMany('App\Models\TeamName', 'teams_names_games', 'games_id', 'teams_names_name')->withTimestamps();
+        return $this->hasMany('App\Models\Tournament', 'games_id', 'id');
     }
 }

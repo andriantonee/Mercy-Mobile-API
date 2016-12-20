@@ -4,7 +4,7 @@ use Illuminate\Support\Facades\Schema;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
 
-class CreateTeamsDetailsTables extends Migration
+class CreateTeamsInvitationsTable extends Migration
 {
     /**
      * Run the migrations.
@@ -13,10 +13,10 @@ class CreateTeamsDetailsTables extends Migration
      */
     public function up()
     {
-        Schema::create('teams_details', function (Blueprint $table) {
+        Schema::create('teams_invitations', function (Blueprint $table) {
             $table->integer('teams_id')->unsigned();
             $table->string('username', 20);
-            $table->bigInteger('joined_at')->unsigned();
+            $table->timestamp('invited_at')->nullable();
 
             $table->primary(['teams_id', 'username']);
             $table->foreign('teams_id')->references('id')->on('teams')->onDelete('restrict')->onUpdate('restrict');
@@ -31,6 +31,6 @@ class CreateTeamsDetailsTables extends Migration
      */
     public function down()
     {
-        Schema::drop('teams_details');
+        Schema::dropIfExists('teams_invitations');
     }
 }

@@ -3,9 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Auth\Authenticatable;
-// use Illuminate\Auth\Passwords\CanResetPassword;
 use Illuminate\Contracts\Auth\Authenticatable as AuthenticatableContract;
-// use Illuminate\Contracts\Auth\CanResetPassword as CanResetPasswordContract;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Passport\HasApiTokens;
@@ -21,36 +19,57 @@ class Member extends Model implements
     protected $keyType = 'string';
 
     protected $dates = [];
-    protected $dateFormat = 'U';
-    protected $fillable = ['username', 'password', 'first_name', 'last_name', 'address', 'phone', 'email'];
-    protected $hidden = ['password', 'remember_token'];
+    protected $fillable = ['username', 'password', 'first_name', 'last_name', 'phone', 'status'];
+    protected $hidden = ['password'];
 
     public $incrementing = false;
-    
+
     public $timestamps = true;
 
     public function findForPassport($username)
     {
-        return self::where('username', $username)->first();
+        return self::where('members.username', $username)->first();
     }
 
-    public function games()
+    public function scopeNon_member($query)
     {
-        return $this->belongsToMany('App\Models\Game', 'members_games', 'username', 'games_id');
+        return $query->where('members.status', 0);
     }
 
-    public function teams()
+    public function scopeMember($query)
     {
-        return $this->belongsToMany('App\Models\Team', 'teams_details', 'username', 'teams_id')->withPivot('joined_at');
+        return $query->where('members.status', 1);
     }
 
-    public function teams_pendings()
+    public function scopeLeader($query)
     {
-        return $this->belongsToMany('App\Models\Team', 'teams_details_pendings', 'username', 'teams_id')->withPivot('invited_at', 'requested_at');
+        return $query->where('members.status', 2);
     }
 
-    public function teams_as_leader()
+    public function scopeLike_name_or_username($query, $keyword)
     {
-        return $this->hasMany('App\Models\Team', 'username', 'username');
+        return $query->where(function ($search) use ($keyword) {
+            $search->whereRaw('TRIM(CONCAT(first_name, " ", last_name)) LIKE ?', ['%' . $keyword . '%'])
+                ->orWhere('members.username', 'like', '%' . $keyword . '%');
+        });
+    }
+
+    public function scopeNot_in_list_invite($query, $teams_id)
+    {
+        return $query->whereNotIn('members.username', function ($pending_list) use ($teams_id) {
+            $pending_list->select('teams_invitations.username')
+                ->from('teams_invitations')
+                ->where('teams_invitations.teams_id', $teams_id);
+        });
+    }
+
+    public function team()
+    {
+        return $this->belongsTo('App\Models\Team', 'teams_id', 'id');
+    }
+
+    public function team_invitations()
+    {
+        return $this->belongsToMany('App\Models\Team', 'teams_invitations', 'username', 'teams_id');
     }
 }

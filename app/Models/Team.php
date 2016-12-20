@@ -3,45 +3,57 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Team extends Model
 {
+    use SoftDeletes;
+
     protected $table = 'teams';
 
     protected $primaryKey = 'id';
     protected $keyType = 'int';
 
-    protected $dates = [];
-    protected $dateFormat = 'U';
-    protected $fillable = ['games_id', 'username', 'name'];
+    protected $dates = ['created_at', 'deleted_at'];
+    protected $fillable = ['name', 'created_at'];
     protected $hidden = [];
 
     public $incrementing = true;
-    
-    public $timestamps = true;
 
-    public function game()
+    public $timestamps = false;
+
+    public function scopeId($query, $id)
     {
-        return $this->belongsTo('App\Models\Game', 'games_id', 'id');
+        return $query->where('teams.id', $id);
     }
 
-    public function team_name()
+    public function scopeNotid($query, $id)
     {
-        return $this->belongsTo('App\Models\TeamName', 'name', 'name');
+        return $query->where('teams.id', '!=', $id);
     }
 
-    public function leader()
+    public function scopeName($query, $name)
     {
-        return $this->belongsTo('App\Models\Member', 'username', 'username');
+        return $query->where('teams.name', $name);
     }
 
     public function members()
     {
-        return $this->belongsToMany('App\Models\Member', 'teams_details', 'teams_id', 'username')->withPivot('joined_at');
+        return $this->hasMany('App\Models\Member', 'teams_id', 'id')->member();
     }
 
-    public function members_pendings()
+    public function leader()
     {
-        return $this->belongsToMany('App\Models\Member', 'teams_details_pendings', 'teams_id', 'username')->withPivot('invited_at', 'requested_at');
+        return $this->hasMany('App\Models\Member', 'teams_id', 'id')->leader();
+    }
+
+    public function invite_list()
+    {
+        return $this->belongsToMany('App\Models\Member', 'teams_invitations', 'teams_id', 'username');
+    }
+
+    public function following_tournaments()
+    {
+        return $this->belongsToMany('App\Models\Tournament', 'tournament_participants', 'teams_id', 'tournament_id');
     }
 }

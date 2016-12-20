@@ -4,7 +4,7 @@ use Illuminate\Support\Facades\Schema;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
 
-class CreateTeamsNamesTables extends Migration
+class AlterOauthClientsTable extends Migration
 {
     /**
      * Run the migrations.
@@ -13,12 +13,8 @@ class CreateTeamsNamesTables extends Migration
      */
     public function up()
     {
-        Schema::create('teams_names', function (Blueprint $table) {
-            $table->string('name', 50);
-            $table->bigInteger('created_at')->unsigned()->nullable();
-            $table->bigInteger('updated_at')->unsigned()->nullable();
-
-            $table->primary('name');
+        Schema::table('oauth_clients', function (Blueprint $table) {
+            $table->string('user_id', 20)->change();
         });
     }
 
@@ -29,6 +25,8 @@ class CreateTeamsNamesTables extends Migration
      */
     public function down()
     {
-        Schema::drop('teams_names');
+        Schema::table('oauth_clients', function (Blueprint $table) {
+            $table->integer('user_id')->change();
+        });
     }
 }
