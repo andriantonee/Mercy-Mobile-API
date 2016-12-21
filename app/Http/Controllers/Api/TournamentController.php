@@ -392,6 +392,8 @@ class TournamentController extends Controller
                     }
                 }
 
+                $tmp_match_data['scheduled_time'] = $tmp_match['scheduled_time'] ? strtotime($tmp_match['scheduled_time']) : 0;
+
                 $match[$tmp_match['round']][] = $tmp_match_data;
                 if ($max_round < $tmp_match['round']) {
                     $max_round = $tmp_match['round'];
